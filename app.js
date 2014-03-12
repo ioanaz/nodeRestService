@@ -96,7 +96,7 @@ app.get('/quotes/:id', function(req, res) {
   }
 });
 
-app.put('/quotes', function(req, res) {
+app.post('/quotes', function(req, res) {
 
   if(!req.body.hasOwnProperty('author') || 
      !req.body.hasOwnProperty('text')) {
@@ -114,9 +114,9 @@ app.put('/quotes', function(req, res) {
   res.json(true);
 });
 
-app.post('/quotes/:id', function(req, res) {
+app.put('/quotes/:id', function(req, res) {
 
-  if(!req.body.hasOwnProperty('id')) {
+  if( !('id' in req.params) ) {
     res.statusCode = 400;
     return res.send('Error 400: You need to provide an Id.');
   }
