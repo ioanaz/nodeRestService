@@ -48,46 +48,56 @@ if ('development' == app.get('env')) {
 
 var quotes = [
   { 
-  	id: '145345',
-  	author : 'Audrey Hepburn', 
-  	text : "Nothing is impossible, the word itself says 'I'm possible'!"
+    id: '145345',
+    author : 'Audrey Hepburn', 
+    text : "Nothing is impossible, the word itself says 'I'm possible'!"
   },
   { 
-  	id: '4356524323',
-  	author : 'Walt Disney', 
-  	text : "You may not realize it when it happens, but a kick in the teeth may be the best thing in the world for you"
+    id: '4356524323',
+    author : 'Walt Disney', 
+    text : "You may not realize it when it happens, but a kick in the teeth may be the best thing in the world for you"
   },
   { 
-  	id: '123145435',
-  	author : 'Unknown', 
-  	text : "Even the greatest was once a beginner. Don't be afraid to take that first step."
+    id: '123145435',
+    author : 'Unknown', 
+    text : "Even the greatest was once a beginner. Don't be afraid to take that first step."
   },
   { 
-  	id: '765478654',
-  	author : 'Neale Donald Walsch', 
-  	text : "You are afraid to die, and you're afraid to live. What a way to exist."
+    id: '765478654',
+    author : 'Neale Donald Walsch', 
+    text : "You are afraid to die, and you're afraid to live. What a way to exist."
   }
 ];
 
 app.get('/', routes.index);
 
 app.get('/quotes', function(req, res) {
-	var response = {};
-	response.quotes = quotes;
-	res.json(response);
+
+  var response = {};
+  response.quotes = quotes;
+  res.json(response);
 });
 
 app.get('/quotes/:id', function(req, res) {
-  if(quotes.length <= req.params.id || req.params.id < 0) {
+
+  var quoteFound = false;
+
+  for(var i = 0; i < quotes.length; i++) {
+
+    if(quotes[i].id == req.params.id) {
+      quoteFound = true;
+      res.json(quotes[i]);
+    }
+  }
+
+  if(!quoteFound) {
     res.statusCode = 404;
     return res.send('Error 404: No quote found');
   }
-
-  var q = quotes[req.params.id];
-  res.json(q);
 });
 
 app.put('/quotes', function(req, res) {
+
   if(!req.body.hasOwnProperty('author') || 
      !req.body.hasOwnProperty('text')) {
     res.statusCode = 400;
@@ -95,7 +105,7 @@ app.put('/quotes', function(req, res) {
   }
 
   var newQuote = {
-  	id: new Date().getTime(),
+    id: new Date().getTime(),
     author : req.body.author,
     text : req.body.text
   };
@@ -104,13 +114,41 @@ app.put('/quotes', function(req, res) {
   res.json(true);
 });
 
+app.post('/quotes/:id', function(req, res) {
+
+  if(!req.body.hasOwnProperty('id')) {
+    res.statusCode = 400;
+    return res.send('Error 400: You need to provide an Id.');
+  }
+
+  for(var i = 0; i < quotes.length; i++) {
+
+    if(quotes[i].id == req.params.id) {
+
+      if(req.body.hasOwnProperty('author')) {
+        quotes[i].author = req.body.author;
+      }
+
+      if(req.body.hasOwnProperty('text')) {
+        quotes[i].text = req.body.text;
+      }
+
+      break;
+    }
+  }
+
+  res.json(true);
+});
+
 app.delete('/quotes/:id', function(req, res) {
-	for(var i = 0; i < quotes.length; i++) {
-		if(quotes[i].id == req.params.id) {
-			quotes.splice(i, 1);
-		}
-	}
-	res.json(true);
+
+  for(var i = 0; i < quotes.length; i++) {
+    if(quotes[i].id == req.params.id) {
+      quotes.splice(i, 1);
+      break;
+    }
+  }
+  res.json(true);
 });
 
 http.createServer(app).listen(app.get('port'), function(){
